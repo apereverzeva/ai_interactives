@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Найдите признаки фишинга</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap">
+<style>
+:root{
+  --bg:#fff;--ink:#000;--mute:#545658;--card:#f7f7f7;--line:#e2e2e2;--accent:#ff6611;--accent-soft:#fce9df;
+  --danger:#dd1f00;--ok:#1c8a4a;--miss:#c25200;--mail:#fff;--mail-ink:#1a1a1a;
+  box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121212;--ink:#f2f2f2;--mute:#b4b6b8;--card:#1e1e1e;--line:#333;--accent-soft:#3a2418;--danger:#ff5a3d;--ok:#4cc27d;--miss:#ff8a4d;}}
+:root[data-theme="dark"]{--bg:#121212;--ink:#f2f2f2;--mute:#b4b6b8;--card:#1e1e1e;--line:#333;--accent-soft:#3a2418;--danger:#ff5a3d;--ok:#4cc27d;--miss:#ff8a4d;}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 Roboto,"Segoe UI",Arial,sans-serif}
+h1,h2,h3{margin:0;line-height:1.2;font-weight:700}
+.wrap{max-width:1080px;margin:0 auto;padding:20px 20px 40px}
+h1{font-size:clamp(22px,4vw,30px)}
+.lead{color:var(--mute);margin:8px 0 0;max-width:62ch}
+.layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(250px,1fr);gap:24px;margin-top:20px;align-items:start}
+@media(max-width:820px){.layout{grid-template-columns:1fr}}
+.hidden{display:none!important}
+.intro{margin-top:20px;background:var(--card);border-radius:12px;padding:22px;max-width:640px}
+.intro ul{margin:10px 0 16px;padding-left:20px}
+.mail{background:var(--mail);color:var(--mail-ink);border:1px solid var(--line);border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.12);overflow:hidden;font-family:"Segoe UI",Roboto,Arial,sans-serif}
+.mail .top{padding:16px 20px;border-bottom:1px solid #e6e6e6}
+.mail .subj{font-size:20px;font-weight:600;margin:0 0 12px}
+.meta{display:flex;gap:12px;align-items:center;font-size:14px;flex-wrap:wrap}
+.ava{width:40px;height:40px;border-radius:50%;background:#8a8d91;color:#fff;display:grid;place-items:center;font-weight:600;flex:none}
+.meta small{display:block;color:#666;font-size:13px}
+.body{padding:18px 20px 22px;font-size:15px}
+.body p{margin:0 0 12px}
+.att{display:inline-flex;gap:8px;align-items:center;border:1px solid #cfcfcf;border-radius:6px;padding:6px 10px;background:#fafafa;font-size:14px}
+.foot{padding:12px 20px;border-top:1px solid #e6e6e6;color:#777;font-size:12.5px}
+.btnlink{display:inline-block;background:#0a66c2;color:#fff;padding:8px 14px;border-radius:4px}
+.hot{cursor:pointer;border-radius:4px;outline:2px dashed transparent;outline-offset:2px;transition:outline-color .15s,background .15s;background:none;border:0;font:inherit;color:inherit;padding:0;text-align:inherit;display:inline}
+.hot:hover,.hot:focus-visible{outline-color:var(--accent);background:rgba(255,102,17,.1)}
+.hot[aria-pressed="true"]{outline:2px solid var(--accent);background:rgba(255,102,17,.18)}
+.locked .hot{cursor:default}
+.hot.r-ok{outline:2px solid var(--ok);background:rgba(28,138,74,.14)}
+.hot.r-miss{outline:2px solid var(--miss);background:rgba(194,82,0,.14)}
+.hot.r-bad{outline:2px solid var(--danger);background:rgba(221,31,0,.14)}
+.status{margin-top:10px;font-size:13px;color:var(--mute);min-height:20px}
+.panel{background:var(--card);border-radius:12px;padding:18px;position:sticky;top:12px}
+.panel h2{font-size:18px}
+.timer{font-size:34px;font-weight:700;margin:10px 0 2px;font-variant-numeric:tabular-nums}
+.timer.low{color:var(--danger)}
+.note{color:var(--mute);font-size:14px;margin:0}
+.picked{margin:14px 0 0;font-size:15px}
+.btn{font:500 15px Roboto,Arial,sans-serif;border:0;border-radius:8px;padding:11px 18px;cursor:pointer;background:var(--accent);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.actions{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}
+.result{margin-top:28px}
+.sum{background:var(--accent-soft);border-radius:12px;padding:20px}
+.score{font-size:40px;font-weight:700;color:var(--accent);line-height:1.1}
+.sum p{margin:6px 0 0}
+.fb{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:10px}
+.fb li{background:var(--card);border-radius:10px;padding:12px 14px;border-left:6px solid var(--line)}
+.fb li.ok{border-left-color:var(--ok)}.fb li.miss{border-left-color:var(--miss)}.fb li.bad{border-left-color:var(--danger)}.fb li.neutral{border-left-color:var(--mute)}
+.fb .tag{font-size:13px;font-weight:700}
+.ok .tag{color:var(--ok)}.miss .tag{color:var(--miss)}.bad .tag{color:var(--danger)}.neutral .tag{color:var(--mute)}
+.fb h3{font-size:16px;margin:2px 0 4px}
+.fb p{margin:0;color:var(--mute);font-size:14.5px}
+.steps{margin-top:22px}.steps ol{padding-left:20px;margin:8px 0 0}
+h2.sec{font-size:20px;margin-top:24px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Найдите признаки фишинга</h1>
+  <p class="lead">Вам пришло письмо. Отметьте в нём всё, что кажется подозрительным, и нажмите «Проверить». Только после этого вы увидите, что верно, а что нет, и почему.</p>
+</header>
+
+<section class="intro" id="intro">
+  <h2>Перед началом</h2>
+  <ul>
+    <li>Нажимайте на элементы письма, чтобы отметить или снять отметку.</li>
+    <li>Не всё необычное является признаком фишинга: некоторые элементы безопасны.</li>
+    <li id="introTime"></li>
+  </ul>
+  <button class="btn" id="start">Начать</button>
+</section>
+
+<div class="layout hidden" id="game">
+  <section aria-label="Письмо" id="mailWrap">
+    <article class="mail">
+      <div class="top">
+        <h3 class="subj"><button class="hot" data-id="urgency" aria-pressed="false">Срочно: ваш рабочий аккаунт будет заблокирован через 2 часа</button></h3>
+        <div class="meta">
+          <div class="ava">СП</div>
+          <div>
+            <div>Служба поддержки <button class="hot" data-id="sender" aria-pressed="false">&lt;support@naumen-helpdesk.help&gt;</button></div>
+            <small>Кому: <button class="hot" data-id="rcpt" aria-pressed="false">Иван Иванов</button> · <button class="hot" data-id="date" aria-pressed="false">Сегодня, 08:12</button></small>
+          </div>
+        </div>
+      </div>
+      <div class="body">
+        <p><button class="hot" data-id="greet" aria-pressed="false">Уважаемый пользователь!</button></p>
+        <p>В вашем аккаунте обнаружена подозрительная активность. <button class="hot" data-id="urgency" aria-pressed="false">Если вы не подтвердите данные в течение 2 часов, доступ будет заблокирован.</button></p>
+        <p><button class="hot" data-id="typo" aria-pressed="false">Просим вас потвердить данные в кротчайшие сроки.</button> <button class="hot" data-id="creds" aria-pressed="false">Для этого введите логин, пароль и код из SMS.</button></p>
+        <p><button class="hot btnlink" data-id="link" data-url="https://naumen-login.help/verify" aria-pressed="false">Подтвердить аккаунт</button></p>
+        <p>Инструкция во вложении:</p>
+        <p><button class="hot att" data-id="attach" aria-pressed="false">📎 инструкция_по_входу.zip (1,2 МБ)</button></p>
+        <p><button class="hot" data-id="sign" aria-pressed="false">С уважением,<br>Служба поддержки</button></p>
+      </div>
+      <div class="foot"><button class="hot" data-id="footer" aria-pressed="false">Письмо сформировано автоматически. Отвечать на него не нужно.</button></div>
+    </article>
+    <div class="status" id="status" aria-live="polite">Наведите курсор на кнопку: адрес ссылки появится здесь.</div>
+  </section>
+
+  <aside class="panel" id="panel" aria-label="Ход игры">
+    <h2>Ваш выбор</h2>
+    <div id="timerBox"><div class="timer" id="timer" role="timer"></div><p class="note" id="timerNote"></p></div>
+    <p class="picked" id="picked">Отмечено: 0</p>
+    <div class="actions">
+      <button class="btn" id="check" disabled>Проверить</button>
+      <button class="btn ghost" id="clear">Снять все отметки</button>
+    </div>
+  </aside>
+</div>
+
+<section class="result hidden" id="result" aria-live="polite">
+  <div class="sum">
+    <h2 id="rTitle"></h2>
+    <div class="score" id="score"></div>
+    <p id="verdict"></p>
+  </div>
+  <h2 class="sec">Разбор письма</h2>
+  <ul class="fb" id="fb"></ul>
+  <div class="steps">
+    <h2>Что делать, если получили такое письмо</h2>
+    <ol>
+      <li>Не переходите по ссылке и не открывайте вложение.</li>
+      <li>Проверьте адрес отправителя и свяжитесь с ним другим способом.</li>
+      <li>Никому не сообщайте пароль и код из SMS.</li>
+      <li>Перешлите письмо в Отдел ИБ: sib@naumen.ru.</li>
+    </ol>
+  </div>
+  <div class="actions"><button class="btn" id="again">Пройти ещё раз без ограничения времени</button></div>
+</section>
+</div>
+
+<script>
+var TIME_LIMIT=120;
+var SIGNS={
+  sender:["Адрес отправителя","Домен naumen-helpdesk.help не принадлежит компании. В нём есть слово Naumen, но корпоративные адреса заканчиваются на naumen.ru. Мошенники регистрируют похожие домены, поэтому проверяйте адрес целиком, а не только имя отправителя."],
+  urgency:["Срочность и угроза блокировки","«Через 2 часа» и «доступ будет заблокирован» давят временем и страхом. Когда человек спешит, он не успевает проверить письмо. Настоящие службы так не пишут. Этот признак есть и в теме, и в тексте письма, достаточно было отметить одно из мест."],
+  greet:["Безличное обращение","«Уважаемый пользователь» подходит любому адресату, значит, письмо разослано массово. Коллеги и службы компании обычно обращаются по имени."],
+  typo:["Ошибки в тексте","«Потвердить» и «кротчайшие» — грубые ошибки. Официальные письма вычитывают, а ошибки часто выдают рассылку, составленную наспех."],
+  creds:["Просьба ввести пароль и код из SMS","Это самый опасный признак. Служба поддержки никогда не просит пароль и одноразовый код: с ними можно войти в систему под вашим именем."],
+  link:["Ссылка на чужой домен","Кнопка «Подтвердить аккаунт» ведёт на naumen-login.help, а не на корпоративный адрес. Это видно, если навести на неё курсор. Всегда проверяйте адрес ссылки до перехода."],
+  attach:["Неожиданное вложение-архив","Вы не ждали это письмо, а архив .zip — частый способ доставить вредоносную программу. Вложения, о которых вы не договаривались, не открывайте."],
+  sign:["Подпись без имени и контактов","«Служба поддержки» не называет конкретного сотрудника, должность и телефон. Такую подпись можно поставить под любым письмом, а проверить, кто пишет, нельзя. Настоящие сотрудники подписываются именем и дают контакты."]
+};
+var DECOYS={
+  rcpt:["Ваше имя в строке «Кому»","Это не признак. Имя в строке «Кому» показывает только адресата и не говорит, настоящее письмо или нет. Мошенники знают имена сотрудников, в том числе из утёкших баз, поэтому обращение по имени ничего не доказывает."],
+  date:["Дата и время отправки","Это не признак. Время отправки не показывает подлинность: настоящие письма приходят в любое время, например из автоматических систем, и мошенники рассылают свои тоже в любое. Оценивайте адрес, содержание и ссылки, а не время."],
+  footer:["Приписка «Письмо сформировано автоматически»","Это не признак. Такая фраза стоит в тысячах настоящих рассылок, и мошенники её копируют. Сама по себе она ничего не доказывает."]
+};
+var $=function(s){return document.querySelector(s)};
+var hots=[].slice.call(document.querySelectorAll('.hot'));
+var ids=Object.keys(SIGNS),total=ids.length,sel={},locked=true,timerId=null,left=0,timed=true,attempt=1;
+
+try{
+  var q=new URLSearchParams(location.search);
+  if(localStorage.getItem('phish_game_done')&&q.get('timer')!=='on')timed=false;
+}catch(e){}
+function fmt(s){var m=Math.floor(s/60),r=s%60;return m+':'+(r<10?'0':'')+r}
+function setIntro(){
+  $('#introTime').textContent=timed?'На первую попытку даётся '+fmt(TIME_LIMIT)+'. Когда время выйдет, ответ проверится сам.':'Время не ограничено. Читайте письмо спокойно.';
+}
+function post(msg){try{window.parent.postMessage(msg,'*')}catch(e){}}
+function sendHeight(){post({type:'phishing-game-height',height:document.documentElement.scrollHeight})}
+function count(){return Object.keys(sel).length}
+function update(){
+  $('#picked').textContent='Отмечено: '+count();
+  $('#check').disabled=count()===0||locked;
+}
+function onHot(e){
+  if(locked)return;
+  var id=e.currentTarget.dataset.id,on=!sel[id];
+  if(on)sel[id]=1;else delete sel[id];
+  hots.forEach(function(h){if(h.dataset.id===id)h.setAttribute('aria-pressed',on?'true':'false')});
+  update();
+}
+function startGame(){
+  $('#intro').classList.add('hidden');$('#game').classList.remove('hidden');
+  locked=false;$('#mailWrap').classList.remove('locked');
+  if(timed){
+    left=TIME_LIMIT;$('#timerBox').classList.remove('hidden');tick();
+    $('#timerNote').textContent='Осталось времени. Когда оно закончится, ответ проверится сам.';
+    timerId=setInterval(function(){left--;tick();if(left<=0){clearInterval(timerId);check(true)}},1000);
+  }else{
+    $('#timerBox').classList.remove('hidden');$('#timer').textContent='Без ограничения';$('#timer').classList.remove('low');
+    $('#timerNote').textContent='Повторная попытка: время не ограничено.';
+  }
+  update();sendHeight();
+}
+function tick(){var t=$('#timer');t.textContent=fmt(Math.max(left,0));t.classList.toggle('low',left<=20)}
+function item(cls,tag,title,text){
+  var li=document.createElement('li');li.className=cls;
+  li.innerHTML='<div class="tag"></div><h3></h3><p></p>';
+  li.children[0].textContent=tag;li.children[1].textContent=title;li.children[2].textContent=text;
+  return li;
+}
+function check(auto){
+  if(locked)return;
+  locked=true;clearInterval(timerId);$('#mailWrap').classList.add('locked');
+  var found=0,extra=0,fb=$('#fb');fb.innerHTML='';
+  ids.forEach(function(id){
+    var hit=!!sel[id],cls=hit?'r-ok':'r-miss';
+    if(hit)found++;
+    hots.forEach(function(h){if(h.dataset.id===id)h.classList.add(cls)});
+    fb.appendChild(item(hit?'ok':'miss',hit?'✓ Вы нашли признак':'! Вы пропустили признак',SIGNS[id][0],SIGNS[id][1]));
+  });
+  Object.keys(DECOYS).forEach(function(id){
+    var hit=!!sel[id];
+    if(hit){extra++;hots.forEach(function(h){if(h.dataset.id===id)h.classList.add('r-bad')})}
+    fb.appendChild(item(hit?'bad':'neutral',hit?'✕ Вы отметили лишнее':'✓ Верно, вы не отметили',DECOYS[id][0],DECOYS[id][1]));
+  });
+  var pts=Math.max(0,Math.round((found-extra)/total*100));
+  $('#rTitle').textContent=(auto===true?'Время вышло. ':'')+'Найдено признаков: '+found+' из '+total+(extra?'. Лишних отметок: '+extra:'');
+  $('#score').textContent=pts+' из 100';
+  $('#verdict').textContent=pts>=85?'Отлично: вы замечаете признаки и не видите угрозу там, где её нет.':pts>=60?'Хороший результат. Пройдитесь по разбору ниже: там видно, что вы пропустили.':'Фишинг легко принять за обычное письмо. Изучите разбор и пройдите курс «Фишинг» ещё раз.';
+  $('#panel').classList.add('hidden');$('#result').classList.remove('hidden');
+  $('#status').textContent='Зелёным отмечены найденные признаки, оранжевым — пропущенные, красным — лишние отметки.';
+  try{localStorage.setItem('phish_game_done','1')}catch(e){}
+  post({type:'phishing-game-result',attempt:attempt,timed:timed,timedOut:auto===true,found:found,total:total,extra:extra,score:pts,passed:pts>=60,secondsLeft:timed?Math.max(left,0):null});
+  sendHeight();
+  $('#result').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function again(){
+  attempt++;timed=false;sel={};
+  hots.forEach(function(h){h.setAttribute('aria-pressed','false');h.classList.remove('r-ok','r-miss','r-bad')});
+  $('#result').classList.add('hidden');$('#panel').classList.remove('hidden');
+  $('#status').textContent='Наведите курсор на кнопку: адрес ссылки появится здесь.';
+  window.scrollTo({top:0,behavior:'smooth'});startGame();
+}
+hots.forEach(function(h){
+  h.addEventListener('click',onHot);
+  function u(){if(h.dataset.url)$('#status').textContent='Адрес ссылки: '+h.dataset.url}
+  h.addEventListener('mouseenter',u);h.addEventListener('focus',u);
+});
+$('#start').addEventListener('click',startGame);
+$('#check').addEventListener('click',function(){check(false)});
+$('#clear').addEventListener('click',function(){if(locked)return;sel={};hots.forEach(function(h){h.setAttribute('aria-pressed','false')});update()});
+$('#again').addEventListener('click',again);
+setIntro();$('#mailWrap').classList.add('locked');update();sendHeight();
+window.addEventListener('resize',sendHeight);
+</script>
+</body>
+</html>
